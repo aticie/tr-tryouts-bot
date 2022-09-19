@@ -22,6 +22,21 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.active_lobbies = {}
         self.connection.set_rate_limit(1)
 
+    def _on_kick(self, connection: irc.client.ServerConnection, event: irc.client.Event):
+        logger.debug(f"{event}")
+        channel = event.target
+
+        player_to_be_removed = None
+        for player, lobby_details in self.active_lobbies.items():
+            if lobby_details["lobby_channel"] == channel:
+                player_to_be_removed = player
+
+        if player_to_be_removed:
+            logger.debug(f"Removing {player_to_be_removed} from active lobbies because we are kicked?")
+            self.active_lobbies.pop(player_to_be_removed)
+        else:
+            logger.debug(f"We are kicked but I couldn't find the active lobby. The lobbies were: {self.active_lobbies}")
+
     def on_welcome(self, connection: irc.client.ServerConnection, event: irc.client.Event):
         logger.debug(f"{event}")
 
@@ -81,6 +96,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
                 self.pause_lobby(author=author)
             elif message == "!abort":
                 self.abort_lobby(author=author)
+            elif message == "!quit":
+                self.close_match(author=author)
 
     @staticmethod
     def lobby_decorator(function):
