@@ -4,8 +4,10 @@ from irc_bot import TryoutsBot
 from settings import Settings
 from sheets import MappoolSpreadsheet
 
+config = Settings()
+
 logger = logging.getLogger("tryouts-bot")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(config.log_level)
 
 ch = logging.StreamHandler()
 formatter = logging.Formatter(
@@ -16,11 +18,11 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 if __name__ == '__main__':
-    config = Settings()
     mappool_sheet = MappoolSpreadsheet()
     mappool = mappool_sheet.get_mappool()
 
-    mappool = [mappool[3], mappool[10]]
+    if config.environment == "testing":
+        mappool = [mappool[3], mappool[10]]
 
     bot = TryoutsBot(nickname=config.irc_nickname, password=config.irc_password, mappool=mappool)
     try:

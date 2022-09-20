@@ -7,6 +7,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from beatmap import Beatmap
+from lobbies import LobbyState
 from settings import Settings
 
 logger = logging.getLogger("tryouts-bot")
@@ -84,3 +85,22 @@ class TryoutLobbiesSheet(Spreadsheet):
                                          insertDataOption="INSERT_ROWS",
                                          body={"values": [row]}).execute()
         logger.info(f"Received: {res}")
+
+    def get_played_lobbies(self):
+        logger.info("Getting the tryout lobbies from sheets.")
+        result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
+                                         range=self.spreadsheet_range).execute()
+        values = result.get('values', [])
+
+        lobbies = {}
+        for row in values:
+            player = row[0]
+            match_url = row[1]
+            match_id = match_url.split("/")[-1]
+            lobbies[player] = {"lobby_channel": f"#mp_{match_id}",
+                               "lobby_url": match_url,
+                               "player": player,
+                               "map_idx": 0,
+                               "lobby_state": LobbyState.LOBBY_ENDING}
+
+        return lobbies

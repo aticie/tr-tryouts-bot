@@ -9,7 +9,11 @@ class Settings:
         self.spreadsheet_tryout_lobbies_range = os.getenv("SPREADSHEET_TRYOUT_LOBBIES_RANGE")
         self.token_json_contents = os.getenv("TOKEN_JSON")
 
+        self.log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
+
         self.irc_nickname = os.getenv("IRC_NICKNAME")
         self.irc_password = os.getenv("IRC_PASSWORD")
+
+        self.environment = os.getenv("ENVIRONMENT", "prod")
 
         
