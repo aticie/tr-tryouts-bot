@@ -14,6 +14,4 @@ class Settings:
         self.irc_nickname = os.getenv("IRC_NICKNAME")
         self.irc_password = os.getenv("IRC_PASSWORD")
 
-        self.environment = os.getenv("ENVIRONMENT", "prod")
-
-        
+        self.environment = os.getenv("ENVIRONMENT", "prod").lower()

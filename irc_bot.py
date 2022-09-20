@@ -188,6 +188,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             logger.info("Exhausted all mappool, ending the lobby!")
             self.active_lobbies[player].lobby_state = LobbyState.LOBBY_ENDING
             self.close_match(player)
+            return
 
         if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
             current_map = self.mappool[map_idx]
@@ -200,7 +201,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.active_lobbies[player].map_idx += 1
             self.active_lobbies[player].lobby_state = LobbyState.LOBBY_WAITING
 
-        logger.debug(f"Lobby details after changing map: {self.active_lobbies[player]}")
+        logger.debug(f"Lobby details after changing map: {self.active_lobbies.get(player)}")
 
     @lobby_decorator
     def resolve_player_leave(self, lobby_details: LobbyDetails):
@@ -246,10 +247,10 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         match_id = message.split("/")[-1].split(" ")[0]
         player = message.split(" ")[-1]
         lobby_url = f"https://osu.ppy.sh/community/matches/{match_id}"
-        self.active_lobbies[player] = LobbyDetails(lobby_channel=f"mp_{match_id}",
+        self.active_lobbies[player] = LobbyDetails(lobby_channel=f"#mp_{match_id}",
                                                    lobby_url=lobby_url,
                                                    player=player)
-        logger.info(f"Started an active lobby: {self.active_lobbies[player]}")
+        logger.info(f"Started an active lobby: {self.active_lobbies.get(player)}")
 
         lobby_sheet = TryoutLobbiesSheet()
         lobby_sheet.append_lobby(player, lobby_url=lobby_url)
@@ -277,7 +278,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.active_lobbies[player].map_idx += 1
         self.active_lobbies[player].lobby_state = LobbyState.LOBBY_INITIALIZED
 
-        logger.info(f"Lobby details after setup: {self.active_lobbies[player]}")
+        logger.info(f"Lobby details after setup: {self.active_lobbies.get(player)}")
 
     @lobby_decorator
     def close_match(self, lobby_details):
