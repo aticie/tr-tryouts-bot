@@ -20,6 +20,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         logger.debug(f"TryoutsBot initating: {nickname} {password} {mappool}")
         irc.bot.SingleServerIRCBot.__init__(self, [("irc.ppy.sh", 6667, password)], nickname, nickname)
 
+        self.ignored_events = ["all_raw_messages", "quit"]
+
         self.mappool = mappool
 
         self.active_lobbies: Dict[str, LobbyDetails] = {}
@@ -305,7 +307,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         """
         Dispatch events to on_<event.type> method, if present.
         """
-        logger.debug({event})
+        if not event.type in self.ignored_events:
+            logger.debug(f"{event}")
 
         def do_nothing(*args):
             return None
