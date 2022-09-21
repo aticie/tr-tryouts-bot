@@ -20,6 +20,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         logger.debug(f"TryoutsBot initating: {nickname} {password} {mappool}")
         irc.bot.SingleServerIRCBot.__init__(self, [("irc.ppy.sh", 6667, password)], nickname, nickname)
 
+        self.recon = irc.bot.ExponentialBackoff(min_interval=5, max_interval=30)
+
         self.ignored_events = ["all_raw_messages", "quit"]
 
         self.mappool = mappool
