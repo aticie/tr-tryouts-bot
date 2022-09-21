@@ -26,9 +26,6 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.played_lobbies: Dict[str, LobbyDetails] = {}
         self.connection.set_rate_limit(1)
 
-    def on_part(self, connection: irc.client.ServerConnection, event: irc.client.Event):
-        logger.debug(f"{event}")
-
     def _on_kick(self, connection: irc.client.ServerConnection, event: irc.client.Event):
         logger.debug(f"{event}")
         channel = event.target
@@ -43,9 +40,6 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.active_lobbies.pop(player_to_be_removed)
         else:
             logger.debug(f"We are kicked but I couldn't find the active lobby. The lobbies were: {self.active_lobbies}")
-
-    def on_welcome(self, connection: irc.client.ServerConnection, event: irc.client.Event):
-        logger.debug(f"{event}")
 
     def on_privmsg(self, connection: irc.client.ServerConnection, event: irc.client.Event):
         """Receive a privmsg event
@@ -307,6 +301,15 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         for player in players:
             self.close_match(player)
 
-    def on_disconnect(self, connection: irc.client.ServerConnection, event: irc.client.Event):
-        logger.info(f"on_disconnect: {event}")
-        sys.exit(0)
+    def _dispatcher(self, connection: irc.client.ServerConnection, event: irc.client.Event):
+        """
+        Dispatch events to on_<event.type> method, if present.
+        """
+        logger.debug({event})
+
+        def do_nothing(*args):
+            return None
+
+        method = getattr(self, "on_" + event.type, do_nothing)
+        method(connection, event)
+
