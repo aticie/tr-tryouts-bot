@@ -217,7 +217,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         player = lobby_details.player
         lobby_state = lobby_details.lobby_state
         if lobby_state == LobbyState.LOBBY_INITIALIZED:
-            self.send(channel, "Welcome to OWC Turkey tryouts!")
+            self.send(channel, "Welcome to 4WC Turkey tryouts!")
             self.send(channel, "I will start the lobby when you are ready.")
             self.send(channel, "Use !pause anytime to pause the timer.")
             self.send(channel, "Use !abort if you have trouble in-game (don't abuse this).")
@@ -236,7 +236,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.send(author, f"You already played, you can see your "
                               f"results from here: {self.played_lobbies[author].lobby_url}")
         else:
-            self.send("BanchoBot", f"!mp make OWCTR-Tryouts {author}")
+            self.send("BanchoBot", f"!mp make 4WC-TR-Tryouts {author}")
             self.active_lobbies[author] = LobbyDetails(lobby_url="",
                                                        lobby_channel="",
                                                        player="")
