@@ -22,7 +22,7 @@ if __name__ == '__main__':
     mappool = mappool_sheet.get_mappool()
 
     if config.environment == "testing":
-        mappool = [mappool[3], mappool[8], mappool[10], mappool[15]]
+        mappool = [mappool[1], mappool[5], mappool[7], mappool[9]]
 
     bot = TryoutsBot(nickname=config.irc_nickname, password=config.irc_password, mappool=mappool)
     try:
