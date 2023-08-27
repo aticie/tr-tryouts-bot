@@ -170,16 +170,16 @@ class TryoutLobbiesSheet(Spreadsheet):
                                          range=self.spreadsheet_range).execute()
         values = result.get('values', [])
 
-        lobbies = {}
+        lobbies = defaultdict(list)
         for row in values:
             player = row[0]
             match_url = row[1]
             match_id = match_url.split("/")[-1]
-            lobbies[player] = LobbyDetails(lobby_channel=f"#mp_{match_id}",
-                                           lobby_url=match_url,
-                                           player=player,
-                                           map_idx=0,
-                                           lobby_state=LobbyState.LOBBY_ENDING)
+            lobbies[player].append(LobbyDetails(lobby_channel=f"#mp_{match_id}",
+                                                lobby_url=match_url,
+                                                player=player,
+                                                map_idx=0,
+                                                lobby_state=LobbyState.LOBBY_ENDING))
 
         return lobbies
 

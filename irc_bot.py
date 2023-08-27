@@ -16,7 +16,7 @@ logger = logging.getLogger("tryouts-bot")
 
 
 class TryoutsBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, nickname: str, password: str, mappool: List[Beatmap]):
+    def __init__(self, nickname: str, password: str, mappool: List[Beatmap], tournament_name: str = "H1A Qualifiers"):
         logger.debug(f"TryoutsBot initating: {nickname} {password} {mappool}")
         irc.bot.SingleServerIRCBot.__init__(self, [("irc.ppy.sh", 6667, password)], nickname, nickname)
 
@@ -26,8 +26,10 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
 
         self.mappool = mappool
 
+        self.tournament_name = tournament_name
+
         self.active_lobbies: Dict[str, LobbyDetails] = {}
-        self.played_lobbies: Dict[str, LobbyDetails] = {}
+        self.played_lobbies: Dict[str, List[LobbyDetails]] = {}
         self.connection.set_rate_limit(1)
 
     def _on_kick(self, connection: irc.client.ServerConnection, event: irc.client.Event):
@@ -61,7 +63,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             if message.startswith("Created the tournament"):
                 self.parse_and_start_lobby(message=message)
         else:
-            if message == "!q":
+            if message == "!play":
                 self.make_lobby(author=author)
             elif message == "!pause":
                 self.pause_lobby(author=author)
@@ -124,7 +126,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         return wrapper
 
     @lobby_decorator
-    def abort_lobby(self, lobby_details):
+    def abort_lobby(self, lobby_details: LobbyDetails):
         lobby_state = lobby_details.lobby_state
         lobby_channel = lobby_details.lobby_channel
         player = lobby_details.player
@@ -208,7 +210,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.active_lobbies[lobby_details.player].lobby_state = LobbyState.LOBBY_DISCONNECTED
             self.active_lobbies[lobby_details.player].player_leave_count += 1
         elif lobby_details.player_leave_count > 0:
-            self.send(lobby_details.lobby_channel, "!mp timer 30")
+            self.send(lobby_details.lobby_channel, "!mp timer 180")
             self.active_lobbies[lobby_details.player].lobby_state = LobbyState.LOBBY_DISCONNECTED
 
     @lobby_decorator
@@ -231,12 +233,13 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.update_played_lobbies()
         if author in self.active_lobbies:
             self.send(author, "You already have an active lobby. Sending you a new invite!")
-            self.invite_lobby(author)
+            self.invite_lobby(authro=author)
         elif author in self.played_lobbies:
-            self.send(author, f"You already played, you can see your "
-                              f"results from here: {self.played_lobbies[author].lobby_url}")
+            if len(self.played_lobbies[author]) > 1:
+                lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
+                self.send(author, f"You have already played: {' - '.join(lobby_urls)}")
         else:
-            self.send("BanchoBot", f"!mp make 4WC-TR-Tryouts {author}")
+            self.send("BanchoBot", f"!mp make {self.tournament_name} - {author}")
             self.active_lobbies[author] = LobbyDetails(lobby_url="",
                                                        lobby_channel="",
                                                        player="")
@@ -260,7 +263,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.connection.privmsg(target, message)
 
     @lobby_decorator
-    def setup_lobby(self, lobby_details):
+    def setup_lobby(self, lobby_details: LobbyDetails):
         lobby_channel = lobby_details.lobby_channel
         current_map_idx = lobby_details.map_idx
         player = lobby_details.player
