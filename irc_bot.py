@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import sys
 from typing import List, Callable, Any, Dict
 
 import irc
@@ -234,10 +233,10 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         if author in self.active_lobbies:
             self.send(author, "You already have an active lobby. Sending you a new invite!")
             self.invite_lobby(authro=author)
-        elif author in self.played_lobbies:
-            if len(self.played_lobbies[author]) > 1:
-                lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
-                self.send(author, f"You have already played: {' - '.join(lobby_urls)}")
+        elif author in self.played_lobbies and \
+                len(self.played_lobbies[author]) > 1:
+            lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
+            self.send(author, f"You have already played: {' - '.join(lobby_urls)}")
         else:
             self.send("BanchoBot", f"!mp make {self.tournament_name} - {author}")
             self.active_lobbies[author] = LobbyDetails(lobby_url="",
@@ -320,4 +319,3 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
 
         method = getattr(self, "on_" + event.type, do_nothing)
         method(connection, event)
-
