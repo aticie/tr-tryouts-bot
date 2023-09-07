@@ -138,6 +138,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         lobby_channel = lobby_details.lobby_channel
         player = lobby_details.player
         if lobby_details.player_abort_count > 0:
+            self.send(lobby_channel, "Abort hakkınız kalmadı.")
             return
         if lobby_state == LobbyState.LOBBY_PLAYING:
             self.active_lobbies[player].player_abort_count += 1
