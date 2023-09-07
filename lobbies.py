@@ -20,3 +20,4 @@ class LobbyDetails:
     map_idx: int = 0
     lobby_state: LobbyState = LobbyState.LOBBY_STARTED
     player_leave_count: int = 0
+    player_abort_count: int = 0

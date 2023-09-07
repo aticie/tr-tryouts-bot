@@ -2,7 +2,7 @@ import logging
 
 from irc_bot import TryoutsBot
 from settings import Settings
-from sheets import MappoolSpreadsheet
+from sheets import MappoolSpreadsheet, PlayersSheet
 
 config = Settings()
 
@@ -20,11 +20,16 @@ logger.addHandler(ch)
 if __name__ == '__main__':
     mappool_sheet = MappoolSpreadsheet()
     mappool = mappool_sheet.get_mappool()
+    players_sheet = PlayersSheet()
+    players = players_sheet.get_players()
 
     if config.environment == "testing":
         mappool = [mappool[1], mappool[5], mappool[7], mappool[9]]
 
-    bot = TryoutsBot(nickname=config.irc_nickname, password=config.irc_password, mappool=mappool)
+    bot = TryoutsBot(nickname=config.irc_nickname,
+                     password=config.irc_password,
+                     mappool=mappool,
+                     allowed_players=players)
     try:
         bot.start()
     except BaseException as e:

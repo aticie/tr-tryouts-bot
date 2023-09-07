@@ -60,6 +60,21 @@ class MappoolSpreadsheet(Spreadsheet):
         return mappool
 
 
+class PlayersSheet(Spreadsheet):
+    def __init__(self, ):
+        super().__init__(config.spreadsheet_id, config.spreadsheet_players_range)
+
+    def get_players(self):
+        logger.info("Getting the players from sheets.")
+        result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
+                                         range=self.spreadsheet_range).execute()
+        values = result.get('values', [])
+
+        players = [v[0] for v in values]
+        logger.info(f"Collected players: {players}.")
+        return players
+
+
 class TryoutScoresSheet(Spreadsheet):
     def __init__(self, ):
         super().__init__(config.spreadsheet_id, config.spreadsheet_tryout_scores_range)

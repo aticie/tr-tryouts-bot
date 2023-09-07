@@ -7,6 +7,7 @@ class Settings:
         self.spreadsheet_mappool_range = os.getenv("SPREADSHEET_MAPPOOL_RANGE")
         self.spreadsheet_tryout_scores_range = os.getenv("SPREADSHEET_TRYOUT_SCORES_RANGE")
         self.spreadsheet_tryout_lobbies_range = os.getenv("SPREADSHEET_TRYOUT_LOBBIES_RANGE")
+        self.spreadsheet_players_range = os.getenv("SPREADSHEET_PLAYERS_RANGE")
         self.token_json_contents = os.getenv("TOKEN_JSON")
 
         self.log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
