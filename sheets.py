@@ -193,7 +193,7 @@ class TryoutLobbiesSheet(Spreadsheet):
             lobbies[player].append(LobbyDetails(lobby_channel=f"#mp_{match_id}",
                                                 lobby_url=match_url,
                                                 player=player,
-                                                map_idx=0,
+                                                next_map_idx=0,
                                                 lobby_state=LobbyState.LOBBY_ENDING))
 
         return lobbies
