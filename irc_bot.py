@@ -25,8 +25,10 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
 
         self.recon = irc.bot.ExponentialBackoff(min_interval=5, max_interval=30)
 
-        self.tournament_start = datetime.datetime(year=2023, month=9, day=7, hour=20, minute=59, second=59, tzinfo=datetime.timezone.utc)
-        self.tournament_end = datetime.datetime(year=2023, month=9, day=17, hour=20, minute=59, second=59, tzinfo=datetime.timezone.utc)
+        self.tournament_start = datetime.datetime(year=2023, month=9, day=7, hour=20, minute=59, second=59,
+                                                  tzinfo=datetime.timezone.utc)
+        self.tournament_end = datetime.datetime(year=2023, month=9, day=17, hour=20, minute=59, second=59,
+                                                tzinfo=datetime.timezone.utc)
 
         self.ignored_events = ["all_raw_messages", "quit"]
 
@@ -112,7 +114,9 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
                 self.resolve_player_leave(player)
         else:
             if message == "!abort":
-                self.abort_lobby(author=author)
+                self.abort_map(author=author)
+            elif message == "!skip":
+                self.skip_map(author=author)
             elif message == "!quit":
                 self.close_match(author=author)
 
@@ -133,12 +137,12 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         return wrapper
 
     @lobby_decorator
-    def abort_lobby(self, lobby_details: LobbyDetails):
+    def abort_map(self, lobby_details: LobbyDetails):
         lobby_state = lobby_details.lobby_state
         lobby_channel = lobby_details.lobby_channel
         player = lobby_details.player
         if lobby_details.player_abort_count > 0:
-            self.send(lobby_channel, "Abort hakkınız kalmadı.")
+            self.send(lobby_channel, "Abort hakkınız kalmadı. Mapi !skip ile skipleyebilirsiniz.")
             return
         if lobby_state == LobbyState.LOBBY_PLAYING:
             self.active_lobbies[player].player_abort_count += 1
@@ -183,28 +187,36 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.send(lobby_channel, f"!mp invite {player}")
 
     @lobby_decorator
-    def change_map_lobby(self, lobby_details):
-        lobby_channel = lobby_details.lobby_channel
-        player = lobby_details.player
-        map_idx = lobby_details.map_idx
+    def skip_map(self, lobby_details: LobbyDetails):
+        if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
+            self.send(lobby_details.lobby_channel, "!mp abort")
+        if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
+            self.change_to_next_map(lobby_details=lobby_details)
 
-        if map_idx == len(self.mappool):
+    @lobby_decorator
+    def change_map_lobby(self, lobby_details: LobbyDetails):
+        player = lobby_details.player
+        next_map_idx = lobby_details.next_map_idx
+
+        if next_map_idx == len(self.mappool):
             logger.info("Exhausted all mappool, ending the lobby!")
             self.active_lobbies[player].lobby_state = LobbyState.LOBBY_ENDING
             self.close_match(player)
             return
 
         if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
-            current_map = self.mappool[map_idx]
-            logger.info(f"Changing the map for {player} to {current_map.beatmap_id}.")
-            map_cmd, mod_cmd = current_map.to_multiplayer_cmd()
-
-            self.send(lobby_channel, map_cmd)
-            self.send(lobby_channel, mod_cmd)
-            self.active_lobbies[player].map_idx += 1
-            self.run_default_timer(lobby_channel, player)
+            self.change_to_next_map(lobby_details)
 
         logger.debug(f"Lobby details after changing map: {self.active_lobbies.get(player)}")
+
+    def change_to_next_map(self, lobby_details: LobbyDetails):
+        next_map = self.mappool[lobby_details.next_map_idx]
+        logger.info(f"Changing the map for {lobby_details.player} to {next_map.beatmap_id}.")
+        map_cmd, mod_cmd = next_map.to_multiplayer_cmd()
+        self.send(lobby_details.lobby_channel, map_cmd)
+        self.send(lobby_details.lobby_channel, mod_cmd)
+        self.active_lobbies[lobby_details.player].next_map_idx += 1
+        self.run_default_timer(lobby_details.lobby_channel, lobby_details.player)
 
     def run_default_timer(self, lobby_channel: str, player: str):
         self.send(lobby_channel, "!mp timer 120")
@@ -249,16 +261,20 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         time_now = datetime.datetime.now(tz=datetime.timezone.utc)
         if time_now < self.tournament_start:
             time_in_turkey = time_now + datetime.timedelta(hours=3)
-            self.send(author, f"Turnuva henüz başlamadı. 7 Eylül 23:59'dan sonra başlayacak. Şu anda saat: {time_in_turkey.strftime('%H:%M')}")
+            self.send(author,
+                      f"Turnuva henüz başlamadı. 7 Eylül 23:59'dan sonra başlayacak. Şu anda saat: {time_in_turkey.strftime('%H:%M')}")
             return
         elif time_now > self.tournament_end:
             self.send(author, "Turnuva 17 Eylül 23:59 tarihinde sona erdi.")
-            if author in self.played_lobbies:
+            if author in self.played_lobbies or \
+                    author.replace(" ", "_") in self.played_lobbies:
                 lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
                 self.send(author, f"Oynamış olduğunuz lobiler: {' - '.join(lobby_urls)}")
 
         # Check if player signed-up for the tournament
-        if (len(self.allowed_players) > 0) and (author not in self.allowed_players):
+        if len(self.allowed_players) > 0 and \
+                (author not in self.allowed_players) and \
+                (author.replace(" ", "_") not in self.allowed_players):
             self.send(author, "Bu bot sadece heyronii'nin 1-A Sınıfı "
                               "osu! Turnuvasına katılanlar tarafından kullanılabilir.")
             return
@@ -295,7 +311,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
     @lobby_decorator
     def setup_lobby(self, lobby_details: LobbyDetails):
         lobby_channel = lobby_details.lobby_channel
-        current_map_idx = lobby_details.map_idx
+        current_map_idx = lobby_details.next_map_idx
         player = lobby_details.player
 
         current_map = self.mappool[current_map_idx]
@@ -306,7 +322,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.send(lobby_channel, map_cmd)
         self.send(lobby_channel, mod_cmd)
 
-        self.active_lobbies[player].map_idx += 1
+        self.active_lobbies[player].next_map_idx += 1
         self.active_lobbies[player].lobby_state = LobbyState.LOBBY_INITIALIZED
 
         logger.info(f"Lobby details after setup: {self.active_lobbies.get(player)}")
@@ -323,7 +339,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         player = message.split(" ")[0]
         score = message.split("Score: ")[-1].split(",")[0]
 
-        map_idx = self.active_lobbies[player].map_idx - 1  # -1 because we incremented once after changing map.
+        map_idx = self.active_lobbies[player].next_map_idx - 1  # -1 because we incremented once after changing map.
         beatmap = self.mappool[map_idx]
 
         logger.info(f"Sending [{player}, {score}, {beatmap.beatmap_id}] to TryoutScoresSheet.")
