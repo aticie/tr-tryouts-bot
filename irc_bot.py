@@ -282,7 +282,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.update_played_lobbies()
         if author in self.active_lobbies:
             self.send(author, "Şu anda bir lobidesiniz, size davet gönderiyorum.")
-            self.invite_lobby(authro=author)
+            self.invite_lobby(author=author)
         elif (author in self.played_lobbies and
               len(self.played_lobbies[author]) > 1):
             lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
