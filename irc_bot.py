@@ -103,14 +103,14 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             elif message == "The match has started!":
                 self.start_lobby_callback(channel)
             elif "finished playing" in message:
-                player = message.split(" ")[0]
-                self.send_scores_to_sheet(message)
+                player = message.split(" finished playing")[0]
+                self.send_scores_to_sheet(message, player=player)
                 self.change_map_lobby(player)
             elif "joined in slot 1" in message:
-                player = message.split(" ")[0]
+                player = message.split(" joined in slot")[0]
                 self.greet_player(player)
             elif "left the game." in message:
-                player = message.split(" ")[0]
+                player = message.split(" left the game")[0]
                 self.resolve_player_leave(player)
         else:
             if message == "!abort":
@@ -335,8 +335,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.send(lobby_channel, "!mp close")
         self.active_lobbies.pop(player)
 
-    def send_scores_to_sheet(self, message: str):
-        player = message.split(" ")[0]
+    def send_scores_to_sheet(self, message: str, player: str):
         score = message.split("Score: ")[-1].split(",")[0]
 
         map_idx = self.active_lobbies[player].next_map_idx - 1  # -1 because we incremented once after changing map.
