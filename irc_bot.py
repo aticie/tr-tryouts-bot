@@ -267,14 +267,14 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         elif time_now > self.tournament_end:
             self.send(author, "Turnuva 17 Eylül 23:59 tarihinde sona erdi.")
             if author in self.played_lobbies or \
-                    author.replace(" ", "_") in self.played_lobbies:
+                    author.replace("_", " ") in self.played_lobbies:
                 lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
                 self.send(author, f"Oynamış olduğunuz lobiler: {' - '.join(lobby_urls)}")
 
         # Check if player signed-up for the tournament
         if len(self.allowed_players) > 0 and \
                 (author not in self.allowed_players) and \
-                (author.replace(" ", "_") not in self.allowed_players):
+                (author.replace("_", " ") not in self.allowed_players):
             self.send(author, "Bu bot sadece heyronii'nin 1-A Sınıfı "
                               "osu! Turnuvasına katılanlar tarafından kullanılabilir.")
             return
