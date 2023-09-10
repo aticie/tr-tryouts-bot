@@ -15,6 +15,7 @@ from sheets import TryoutLobbiesSheet, TryoutScoresSheet
 logger = logging.getLogger("tryouts-bot")
 
 
+# noinspection PyTypeChecker
 class TryoutsBot(irc.bot.SingleServerIRCBot):
     MAX_ALLOWED_LEAVES = 3
 
@@ -104,13 +105,16 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
                 self.start_lobby_callback(channel)
             elif "finished playing" in message:
                 player = message.split(" finished playing")[0]
+                player = player.replace(" ", "_")
                 self.send_scores_to_sheet(message, player=player)
                 self.change_map_lobby(player)
             elif "joined in slot 1" in message:
                 player = message.split(" joined in slot")[0]
+                player = player.replace(" ", "_")
                 self.greet_player(player)
             elif "left the game." in message:
                 player = message.split(" left the game")[0]
+                player = player.replace(" ", "_")
                 self.resolve_player_leave(player)
         else:
             if message == "!abort":
