@@ -190,7 +190,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
     def skip_map(self, lobby_details: LobbyDetails):
         if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
             self.send(lobby_details.lobby_channel, "!mp abort")
-        if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
+        if lobby_details.lobby_state == LobbyState.LOBBY_WAITING or \
+                lobby_details.lobby_state == LobbyState.LOBBY_INITIALIZED:
             self.change_to_next_map(lobby_details=lobby_details)
 
     @lobby_decorator
