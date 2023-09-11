@@ -194,12 +194,21 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
     def skip_map(self, lobby_details: LobbyDetails):
         if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
             self.send(lobby_details.lobby_channel, "!mp abort")
-        if lobby_details.lobby_state == LobbyState.LOBBY_WAITING or \
+            self.change_to_next_map(lobby_details=lobby_details)
+        elif lobby_details.lobby_state == LobbyState.LOBBY_WAITING or \
                 lobby_details.lobby_state == LobbyState.LOBBY_INITIALIZED:
             self.change_to_next_map(lobby_details=lobby_details)
 
     @lobby_decorator
     def change_map_lobby(self, lobby_details: LobbyDetails):
+        player = lobby_details.player
+
+        if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
+            self.change_to_next_map(lobby_details)
+
+        logger.debug(f"Lobby details after changing map: {self.active_lobbies.get(player)}")
+
+    def change_to_next_map(self, lobby_details: LobbyDetails):
         player = lobby_details.player
         next_map_idx = lobby_details.next_map_idx
 
@@ -209,13 +218,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.close_match(player)
             return
 
-        if lobby_details.lobby_state == LobbyState.LOBBY_PLAYING:
-            self.change_to_next_map(lobby_details)
+        next_map = self.mappool[next_map_idx]
 
-        logger.debug(f"Lobby details after changing map: {self.active_lobbies.get(player)}")
-
-    def change_to_next_map(self, lobby_details: LobbyDetails):
-        next_map = self.mappool[lobby_details.next_map_idx]
         logger.info(f"Changing the map for {lobby_details.player} to {next_map.beatmap_id}.")
         map_cmd, mod_cmd = next_map.to_multiplayer_cmd()
         self.send(lobby_details.lobby_channel, map_cmd)
