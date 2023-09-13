@@ -49,7 +49,7 @@ class MappoolSpreadsheet(Spreadsheet):
     def get_mappool(self):
         logger.info("Getting the mappool from sheets.")
         result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
-                                         range=self.spreadsheet_range).execute()
+                                         range=self.spreadsheet_range).execute(num_retries=5)
         values = result.get('values', [])
 
         mappool = []
@@ -67,7 +67,7 @@ class PlayersSheet(Spreadsheet):
     def get_players(self):
         logger.info("Getting the players from sheets.")
         result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
-                                         range=self.spreadsheet_range).execute()
+                                         range=self.spreadsheet_range).execute(num_retries=5)
         values = result.get('values', [])
 
         players = [v[0] for v in values]
@@ -82,16 +82,21 @@ class TryoutScoresSheet(Spreadsheet):
     def append_score(self, player: str, score: str, beatmap_id: str):
         row = [player, beatmap_id, score]
         logger.info(f"Appending {row} to TryoutScores sheet.")
-        res = self.sheet.values().append(spreadsheetId=self.spreadsheet_id,
-                                         range=self.spreadsheet_range,
-                                         valueInputOption="USER_ENTERED",
-                                         insertDataOption="INSERT_ROWS",
-                                         body={"values": [row]}).execute()
-        logger.info(f"Received: {res}")
+        try:
+            res = self.sheet.values().append(spreadsheetId=self.spreadsheet_id,
+                                             range=self.spreadsheet_range,
+                                             valueInputOption="USER_ENTERED",
+                                             insertDataOption="INSERT_ROWS",
+                                             body={"values": [row]}).execute(num_retries=5)
+            logger.info(f"Received: {res}")
+        except TimeoutError as e:
+            logger.error(e)
+            logger.warning(f"Could not append {row} to the TryoutScores sheet.")
+
 
     def get_scores(self) -> List[OsuScore]:
         result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
-                                         range=self.spreadsheet_range).execute()
+                                         range=self.spreadsheet_range).execute(num_retries=5)
         values = result.get('values', [])
         return [OsuScore(*row) for row in values]
 
@@ -103,7 +108,7 @@ class TryoutScoresSheet(Spreadsheet):
         scores = self.get_scores()
 
         beatmap_ids_result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
-                                                     range="TryoutResults!L2:BG2").execute()
+                                                     range="TryoutResults!L2:BG2").execute(num_retries=5)
         beatmap_ids = list(filter(None, beatmap_ids_result.get('values', [])[0]))
 
         all_players = {score.player for score in scores}
@@ -181,8 +186,12 @@ class TryoutLobbiesSheet(Spreadsheet):
 
     def get_played_lobbies(self):
         logger.info("Getting the tryout lobbies from sheets.")
-        result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
-                                         range=self.spreadsheet_range).execute()
+        try:
+            result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
+                                             range=self.spreadsheet_range).execute(num_retries=5)
+        except TimeoutError as e:
+            pass
+
         values = result.get('values', [])
 
         lobbies = defaultdict(list)
