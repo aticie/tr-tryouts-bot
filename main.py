@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from irc_bot import TryoutsBot
 from settings import Settings
@@ -35,3 +36,4 @@ if __name__ == '__main__':
     except BaseException as e:
         logger.exception(e)
         bot.cleanup()
+        sys.exit(1)
