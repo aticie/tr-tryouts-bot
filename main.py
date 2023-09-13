@@ -10,7 +10,7 @@ config = Settings()
 logger = logging.getLogger("tryouts-bot")
 logger.setLevel(config.log_level)
 
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
     '%(asctime)s | %(levelname)s | %(process)d | %(name)s | %(funcName)s | %(message)s',
     datefmt='%d/%m/%Y %I:%M:%S')
