@@ -266,6 +266,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         self.played_lobbies = lobby_sheet.get_played_lobbies()
 
     def make_lobby(self, author: str):
+        self.update_played_lobbies()
         # Check tournament times
         time_now = datetime.datetime.now(tz=datetime.timezone.utc)
         if time_now < self.tournament_start:
@@ -287,7 +288,6 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.send(author, "Bu bot sadece heyronii'nin 1-A Sınıfı "
                               "osu! Turnuvasına katılanlar tarafından kullanılabilir.")
             return
-        self.update_played_lobbies()
         if author in self.active_lobbies:
             self.send(author, "Şu anda bir lobidesiniz, size davet gönderiyorum.")
             self.invite_lobby(author=author)

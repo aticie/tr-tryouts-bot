@@ -186,11 +186,8 @@ class TryoutLobbiesSheet(Spreadsheet):
 
     def get_played_lobbies(self):
         logger.info("Getting the tryout lobbies from sheets.")
-        try:
-            result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
-                                             range=self.spreadsheet_range).execute(num_retries=5)
-        except TimeoutError as e:
-            pass
+        result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id,
+                                         range=self.spreadsheet_range).execute(num_retries=5)
 
         values = result.get('values', [])
 
