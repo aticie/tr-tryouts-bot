@@ -280,7 +280,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
                     author.replace("_", " ") in self.played_lobbies:
                 lobby_urls = [lobby.lobby_url for lobby in self.played_lobbies[author]]
                 self.send(author, f"Oynamış olduğunuz lobiler: {' - '.join(lobby_urls)}")
-
+            return
         # Check if player signed-up for the tournament
         if len(self.allowed_players) > 0 and \
                 (author not in self.allowed_players) and \
