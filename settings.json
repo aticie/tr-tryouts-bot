@@ -1,0 +1,18 @@
+{
+  "tournamentStart": "2023-09-01T00:00:00+03:00",
+  "tournamentEnd": "2023-10-08T23:59:59+03:00",
+  "tournamentName": "OWC 2023 TR Tryouts",
+  "lobbyFull": "Bütün lobiler şu anda dolu, lütfen daha sonra tekrar deneyin.",
+  "noAbortsLeft": "Abort hakkınız kalmadı. Mapi !skip ile skipleyebilirsiniz.",
+  "greetings": [
+    "OWC 2023 Türkiye Tryouts'a hoşgeldiniz!",
+    "Oyunda aksaklık yaşarsanız !abort durdurabilirsiniz (1 kere ile sınırlıdır).",
+    "İlk mapi hazır olduğunuzda başlatacağım."
+  ],
+  "lobbyLeaveDetected": "Lobiden ayrıldığınız tespit edildi. {disconnects_left} kere daha ayrılmanız durumunda maçınız sonlandırılacktır. ({player_leave_count}/{max_allowed_leaves})",
+  "tournamentNotStartedYet": "Turnuva henüz başlamadı. {tournament_start_str} tarihinde başlayacak. Şu anda saat: {time_in_turkey}",
+  "tournamentEnded": "Turnuva {tournament_end_str} tarihinde sona erdi.",
+  "allowedPlayers": "Bu botu sadece OWC 2023 Türkiye Tryouts'a katılanlar kullanılabilir.",
+  "playerAlreadyInLobby": "Şu anda bir lobidesiniz, size davet gönderiyorum.",
+  "playerPlayedLobbies": "Oynamış olduğunuz lobiler: {lobby_urls_str}"
+}
