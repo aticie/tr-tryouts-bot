@@ -11,5 +11,10 @@ class Beatmap:
 
     def to_multiplayer_cmd(self):
         map_cmd = f"!mp map {self.beatmap_id}"
-        mod_cmd = f"!mp mods NF" if self.mod == "NM" else f"!mp mods {self.mod} NF"
+        if self.mod == "FM":
+            mod_cmd = f"!mp mods 1 freemod"
+        elif self.mod == "NM":
+            mod_cmd = f"!mp mods NF"
+        else:
+            mod_cmd = f"!mp mods NF {self.mod}"
         return map_cmd, mod_cmd

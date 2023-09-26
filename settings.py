@@ -3,11 +3,15 @@ import os
 
 class Settings:
     def __init__(self):
-        self.spreadsheet_id = os.getenv("SPREADSHEET_ID")
-        self.spreadsheet_mappool_range = os.getenv("SPREADSHEET_MAPPOOL_RANGE")
-        self.spreadsheet_tryout_scores_range = os.getenv("SPREADSHEET_TRYOUT_SCORES_RANGE")
-        self.spreadsheet_tryout_lobbies_range = os.getenv("SPREADSHEET_TRYOUT_LOBBIES_RANGE")
-        self.spreadsheet_players_range = os.getenv("SPREADSHEET_PLAYERS_RANGE")
+        self.mappool_spreadsheet_id = os.getenv("MAPPOOL_SPREADSHEET_ID")
+        self.mappool_spreadsheet_range = os.getenv("MAPPOOL_SPREADSHEET_RANGE")
+        self.stats_spreadsheet_id = os.getenv("STATS_SPREADSHEET_ID")
+        self.stats_spreadsheet_lobbies_range = os.getenv(
+            "STATS_SPREADSHEET_LOBBIES_RANGE"
+        )
+        self.stats_spreadsheet_players_range = os.getenv(
+            "STATS_SPREADSHEET_PLAYERS_RANGE"
+        )
         self.token_json_contents = os.getenv("TOKEN_JSON")
 
         self.log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
