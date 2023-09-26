@@ -18,8 +18,9 @@ logger = logging.getLogger("tryouts-bot")
 
 # noinspection PyTypeChecker
 class TryoutsBot(irc.bot.SingleServerIRCBot):
-    MAX_ALLOWED_LEAVES = 3
+    MAX_ALLOWED_LEAVES = 1
     BEFORE_READY_WAIT_SECONDS = 120
+    DISCONNECT_WAIT_TIMEOUT = 300
     MAX_ALLOWED_PLAYS = 1
 
     def __init__(
@@ -64,7 +65,6 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
     def _on_kick(
         self, connection: irc.client.ServerConnection, event: irc.client.Event
     ):
-        logger.debug(f"{event}")
         channel = event.target
 
         player_to_be_removed = None
@@ -91,7 +91,6 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         If the message is:
         - !q: Handle queue command. Start a private lobby for the player.
         """
-        logger.debug(f"{event}")
         author = event.source.nick
         message = event.arguments[0]
 
@@ -117,7 +116,6 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         If the message is from BanchoBot:
         - Start the lobby if timer ends or player readies up
         """
-        logger.debug(f"{event}")
         author = event.source.nick
         channel = event.target
         message = event.arguments[0]
@@ -279,7 +277,9 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
     @lobby_decorator
     def resolve_player_leave(self, lobby_details: LobbyDetails):
         if lobby_details.player_leave_count < self.MAX_ALLOWED_LEAVES:
-            self.send(lobby_details.lobby_channel, "!mp timer 300")
+            self.send(
+                lobby_details.lobby_channel, f"!mp timer {self.DISCONNECT_WAIT_TIMEOUT}"
+            )
             self.active_lobbies[
                 lobby_details.player
             ].lobby_state = LobbyState.LOBBY_DISCONNECTED
