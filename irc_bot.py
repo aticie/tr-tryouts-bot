@@ -146,6 +146,8 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
                 self.skip_map(author=author)
             elif message == "!quit":
                 self.close_match(author=author)
+            elif message == "!play":
+                self.start_lobby(channel)
 
     @staticmethod
     def lobby_decorator(function: Callable[[TryoutsBot, str], Any]):
