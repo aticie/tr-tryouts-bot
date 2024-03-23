@@ -1,18 +1,19 @@
 {
-  "tournamentStart": "2024-02-10T00:00:00+03:00",
-  "tournamentEnd": "2024-02-18T21:00:00+03:00",
-  "tournamentName": "5WC 2024 TR Tryouts",
+  "tournamentStart": "2024-03-30T00:00:00+03:00",
+  "tournamentEnd": "2024-04-10T21:00:00+03:00",
+  "tournamentName": "4WC 2024 TR Tryouts",
   "lobbyFull": "Bütün lobiler şu anda dolu, lütfen daha sonra tekrar deneyin.",
   "noAbortsLeft": "Abort hakkınız kalmadı. Mapi !skip ile skipleyebilirsiniz.",
   "greetings": [
-    "5WC 2024 TR Tryouts'a hoşgeldiniz!",
+    "4WC 2024 TR Tryouts'a hoşgeldiniz!",
     "Oyunda aksaklık yaşarsanız !abort durdurabilirsiniz (1 kere ile sınırlıdır).",
     "İlk mapi hazır olduğunuzda başlatacağım."
   ],
-  "lobbyLeaveDetected": "Lobiden ayrıldığınız tespit edildi. {disconnects_left} kere daha ayrılmanız durumunda maçınız sonlandırılacktır. ({player_leave_count}/{max_allowed_leaves})",
-  "tournamentNotStartedYet": "Turnuva henüz başlamadı. {tournament_start_str} tarihinde başlayacak. Şu anda saat: {time_in_turkey}",
+  "lobbyLeaveDetected": "Lobiden ayrıldığınız tespit edildi. {disconnects_left} kere daha ayrılmanız durumunda maçınız sonlandırılacaktır. ({player_leave_count}/{max_allowed_leaves})",
+  "lobbyAbandonMessage": "Lobiden ayrılma hakkınızı doldurduğunuz için lobiniz kapatıldı. Oynamış olduğunuz multiplayer lobisi linki: {lobby_url}",
+  "tournamentNotStartedYet": "Turnuva henüz başlamadı. {tournament_start_str} tarihinde başlayacak. Şu anda zaman: {time_in_turkey}",
   "tournamentEnded": "Turnuva {tournament_end_str} tarihinde sona erdi.",
-  "allowedPlayers": "Bu botu sadece 5WC 2024 Türkiye Tryouts'a katılanlar kullanılabilir.",
+  "allowedPlayers": "Bu botu sadece 4WC 2024 Türkiye Tryouts'a katılanlar kullanılabilir.",
   "playerAlreadyInLobby": "Şu anda bir lobidesiniz, size davet gönderiyorum.",
   "playerPlayedLobbies": "Oynamış olduğunuz lobiler: {lobby_urls_str}"
 }

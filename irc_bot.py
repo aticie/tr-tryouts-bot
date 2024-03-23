@@ -19,6 +19,7 @@ logger = logging.getLogger("tryouts-bot")
 # noinspection PyTypeChecker
 class TryoutsBot(irc.bot.SingleServerIRCBot):
     MAX_ALLOWED_LEAVES = 1
+    MAX_ABORT_COUNT = 1
     BEFORE_READY_WAIT_SECONDS = 120
     DISCONNECT_WAIT_TIMEOUT = 300
     MAX_ALLOWED_PLAYS = 1
@@ -174,7 +175,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         lobby_state = lobby_details.lobby_state
         lobby_channel = lobby_details.lobby_channel
         player = lobby_details.player
-        if lobby_details.player_abort_count > 0:
+        if lobby_details.player_abort_count >= self.MAX_ABORT_COUNT:
             self.send(lobby_channel, self.settings["noAbortsLeft"])
             return
         if lobby_state == LobbyState.LOBBY_PLAYING:
@@ -288,6 +289,11 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
             self.active_lobbies[lobby_details.player].player_leave_count += 1
         else:
             author = lobby_details.player
+            self.send(
+                lobby_details.player, self.settings["lobbyAbandonMessage"].format(
+                    lobby_url=lobby_details.lobby_url
+                )
+            )
             self.close_match(author=author)
 
     @lobby_decorator
@@ -302,7 +308,7 @@ class TryoutsBot(irc.bot.SingleServerIRCBot):
         elif lobby_state == LobbyState.LOBBY_DISCONNECTED:
             disconnects_left = (
                 self.MAX_ALLOWED_LEAVES - lobby_details.player_leave_count
-            )
+            ) + 1
             self.active_lobbies[player].lobby_state = LobbyState.LOBBY_WAITING
             self.send(
                 channel,

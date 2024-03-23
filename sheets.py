@@ -61,7 +61,8 @@ class MappoolSpreadsheet(Spreadsheet):
 
         mappool = []
         for row in values:
-            mappool.append(Beatmap(row[-1], row[0]))
+            mappool.append(Beatmap(beatmap_id=row[-1],
+                                   mod=row[0]))
 
         logger.info(f"Collected the mappool: {mappool}.")
         return mappool
